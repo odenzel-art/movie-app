@@ -1,0 +1,26 @@
+# Video Sources List
+# Format: one URL per line
+# Use {movie_id} as placeholder
+
+https://autoembed.co/embed/movie/{movie_id}
+https://vidsrc.pm/embed/movie/{movie_id}
+https://2embed.skin/embed/movie/{movie_id}
+https://vidsrc.mov/embed/movie/{movie_id}
+https://multiembed.mov/?video_id={movie_id}
+https://vidfast.co/embed/movie/{movie_id}
+https://moviesapi.to/embed/movie/{movie_id}
+https://frembed.xyz/embed/movie/{movie_id}
+https://embed.su/embed/movie/{movie_id}
+https://vidsrc.xyz/embed/movie/{movie_id}
+https://vidsrc.to/embed/movie/{movie_id}
+https://vidembed.cc/embed/movie/{movie_id}
+https://2embed.cc/embed/movie/{movie_id}
+https://2embed.org/embed/movie/{movie_id}
+https://2embed.li/embed/movie/{movie_id}
+https://vidsrc.net/embed/movie/{movie_id}
+https://vidsrc.pro/embed/movie/{movie_id}
+https://vidsrc.info/embed/movie/{movie_id}
+https://moviesapi.net/embed/movie/{movie_id}
+https://vidcloud.cc/embed/movie/{movie_id}
+https://vidstream.cc/embed/movie/{movie_id}
+https://vidplay.cc/embed/movie/{movie_id}
