@@ -32,7 +32,7 @@ def movie_detail(movie_id):
     movie = requests.get(url).json()
     
     # Video source (VidSrc)
-    video_url = f"https://vidsrc.cc/v2/embed/movie/{movie_id}"
+    video_url = f"https://vidsrc.to/v2/embed/movie/{movie_id}"
     
     return render_template('detail.html', movie=movie, video_url=video_url)
 
