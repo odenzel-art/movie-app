@@ -32,7 +32,22 @@ def movie_detail(movie_id):
     movie = requests.get(url).json()
     
     # Video source (VidSrc)
-    video_url = f"https://vidsrc.to/v2/embed/movie/{movie_id}"
+    video_url = f"https://vidsrc.cc/v2/embed/movie/{movie_id}"
+
+    # Alternative 1: vidsrc.to (Most reliable)
+    video_url = f"https://vidsrc.to/embed/movie/{movie_id}"
+
+    # Alternative 2: vidsrc.xyz
+    video_url = f"https://vidsrc.xyz/embed/movie/{movie_id}"
+
+    # Alternative 3: vidsrc.pro
+    video_url = f"https://vidsrc.pro/embed/movie/{movie_id}"
+
+    # Alternative 4: 2embed (Very reliable)
+    video_url = f"https://www.2embed.cc/embed/{movie_id}"
+
+    # Alternative 5: Multi-embed (auto-picks best source)
+    video_url = f"https://multiembed.mov/?video_id={movie_id}"
     
     return render_template('detail.html', movie=movie, video_url=video_url)
 
