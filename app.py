@@ -4,7 +4,7 @@ import requests
 app = Flask(__name__)
 
 # PASTE YOUR TMDB API KEY HERE:
-TMDB_API_KEY = "YOUR_API_KEY_HERE"
+TMDB_API_KEY = "861edbc9c659c8714873ca4ae6edee8c"
 TMDB_BASE_URL = "https://api.themoviedb.org/3"
 
 @app.route('/')
