@@ -1,0 +1,32 @@
+# To get started with Dependabot version updates, you'll need to specify which
+# package ecosy# .github/dependabot.yml
+version: 2
+updates:
+  # Enable version updates for Python (pip)
+  - package-ecosystem: "pip"
+    # Look for `requirements.txt` in the root directory
+    directory: "/"
+    # Check for updates once a week on a specific day
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "06:00"
+      timezone: "UTC"
+    # Limit the number of open PRs to avoid clutter
+    open-pull-requests-limit: 5
+    # Only update production dependencies, not dev ones (since you don't have dev dependencies)
+    allow:
+      - dependency-type: "production"
+    # Add a label to easily identify Dependabot PRs
+    labels:
+      - "dependencies"
+      - "python"stems to update and where the package manifests are located.
+# Please see the documentation for all configuration options:
+# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
+version: 2
+updates:
+  - package-ecosystem: "" # See documentation for possible values
+    directory: "/" # Location of package manifests
+    schedule:
+      interval: "weekly"
