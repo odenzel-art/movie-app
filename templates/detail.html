@@ -6,12 +6,8 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: Arial, sans-serif; background: #0a0a0a; color: white; padding: 20px; }
         .container { max-width: 1100px; margin: 0 auto; }
-        
-        /* Back button */
         .back-link { color: #e50914; text-decoration: none; font-size: 18px; display: inline-block; margin-bottom: 15px; }
         .back-link:hover { text-decoration: underline; }
-        
-        /* Video container */
         .video-container { 
             position: relative; 
             padding-bottom: 56.25%; 
@@ -28,29 +24,6 @@
             height: 100%; 
             border: none; 
         }
-        
-        /* Source tabs */
-        .source-tabs { 
-            display: flex; 
-            gap: 5px; 
-            margin: 10px 0;
-            flex-wrap: wrap;
-        }
-        .source-tab { 
-            padding: 8px 15px; 
-            background: #2a2a2a; 
-            border-radius: 5px; 
-            cursor: pointer; 
-            font-size: 12px;
-            border: 1px solid #333;
-        }
-        .source-tab:hover { background: #3a3a3a; }
-        .source-tab.active { 
-            background: #e50914; 
-            border-color: #e50914;
-        }
-        
-        /* Movie info */
         .info { 
             margin: 20px 0; 
             background: #1a1a1a; 
@@ -61,19 +34,37 @@
         .info .rating { color: #ffd700; }
         .info .overview { margin-top: 10px; line-height: 1.6; color: #ccc; }
         .info .year { color: #888; font-size: 14px; margin-left: 10px; }
-        
-        /* Error message */
-        .error-msg { 
-            text-align: center; 
-            padding: 50px; 
-            color: #888; 
+        .watch-status {
+            background: #2a2a2a;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            border-left: 4px solid #e50914;
+            font-size: 14px;
         }
-        .error-msg a { color: #e50914; }
-        
-        /* Responsive */
+        .continue-btn {
+            background: #e50914;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        .continue-btn:hover { background: #b20710; }
+        .clear-btn {
+            background: #333;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .clear-btn:hover { background: #555; }
         @media (max-width: 600px) {
             .info h1 { font-size: 20px; }
-            .source-tab { padding: 5px 10px; font-size: 10px; }
         }
     </style>
 </head>
@@ -81,20 +72,22 @@
     <div class="container">
         <a href="/" class="back-link">← Back to Home</a>
         
-        <!-- Video Player -->
-        <div class="video-container" id="videoContainer">
-            <iframe id="videoPlayer" src="{{ primary_video_url }}" allowfullscreen></iframe>
+        <!-- Watch Status -->
+        <div class="watch-status" id="watchStatus">
+            <p id="watchMessage">Loading your watch history...</p>
+            <div id="continueButtons">
+                <button class="continue-btn" id="continueBtn" onclick="continueWatching()" style="display:none;">
+                    ▶️ Continue Watching
+                </button>
+                <button class="clear-btn" onclick="clearHistory()" style="display:none;">
+                    🗑️ Clear History
+                </button>
+            </div>
         </div>
         
-        <!-- Source Tabs -->
-        <div class="source-tabs">
-            {% for url in video_urls %}
-                <div class="source-tab {% if loop.first %}active{% endif %}" 
-                     data-url="{{ url }}"
-                     onclick="changeSource(this, '{{ url }}')">
-                    Source {{ loop.index }}
-                </div>
-            {% endfor %}
+        <!-- Video Player -->
+        <div class="video-container">
+            <iframe id="videoPlayer" src="{{ video_url }}" allowfullscreen></iframe>
         </div>
         
         <!-- Movie Info -->
@@ -107,25 +100,128 @@
             <p><strong>Release Date:</strong> {{ movie.release_date or 'Unknown' }}</p>
             <p class="overview">{{ movie.overview or 'No description available.' }}</p>
         </div>
-        
-        <!-- Fallback instruction -->
-        <p style="color: #555; font-size: 12px; text-align: center;">
-            💡 If the video doesn't load, try clicking a different "Source" button above.
-        </p>
     </div>
     
     <script>
-        // Function to change video source
-        function changeSource(element, url) {
-            // Update the iframe
-            document.getElementById('videoPlayer').src = url;
-            
-            // Update active tab
-            document.querySelectorAll('.source-tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            element.classList.add('active');
+        // Get movie details from the page
+        const movieId = "{{ movie.id }}";
+        const movieTitle = "{{ movie.title }}";
+        const moviePoster = "https://image.tmdb.org/t/p/w500{{ movie.poster_path }}";
+        
+        // ============================================
+        // WATCH HISTORY FUNCTIONS
+        // ============================================
+        
+        function getHistory() {
+            const history = localStorage.getItem('watchHistory');
+            return history ? JSON.parse(history) : {};
         }
+        
+        function saveHistory(history) {
+            localStorage.setItem('watchHistory', JSON.stringify(history));
+        }
+        
+        function updateWatchStatus() {
+            const history = getHistory();
+            const watchStatus = document.getElementById('watchStatus');
+            const watchMessage = document.getElementById('watchMessage');
+            const continueBtn = document.getElementById('continueBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            
+            if (history[movieId]) {
+                const data = history[movieId];
+                const progress = Math.round(data.progress);
+                const lastWatched = new Date(data.timestamp).toLocaleDateString();
+                
+                watchMessage.innerHTML = `
+                    📺 <strong>${movieTitle}</strong> - ${progress}% watched<br>
+                    <small>Last watched: ${lastWatched}</small>
+                `;
+                continueBtn.style.display = 'inline-block';
+                clearBtn.style.display = 'inline-block';
+                clearBtn.setAttribute('onclick', `clearHistory('${movieId}')`);
+            } else {
+                watchMessage.textContent = 'No watch history for this movie.';
+                continueBtn.style.display = 'none';
+                clearBtn.style.display = 'none';
+            }
+        }
+        
+        function continueWatching() {
+            const history = getHistory();
+            if (history[movieId]) {
+                const data = history[movieId];
+                // We need to pass the timestamp to the video player
+                // Since we can't directly control external embed, we reload the page with a hash
+                window.location.href = window.location.href.split('#')[0] + `#t=${data.timestamp}`;
+            }
+        }
+        
+        function clearHistory(movieIdToClear) {
+            if (confirm(`Clear watch history for "${movieTitle}"?`)) {
+                const history = getHistory();
+                delete history[movieIdToClear];
+                saveHistory(history);
+                updateWatchStatus();
+            }
+        }
+        
+        // ============================================
+        // SAVE PROGRESS (every 10 seconds)
+        // ============================================
+        
+        // Since we can't control the embed directly, we simulate progress
+        // by saving time-based progress
+        let startTime = Date.now();
+        let isWatching = true;
+        
+        // Save progress every 10 seconds
+        setInterval(() => {
+            if (isWatching) {
+                const elapsed = (Date.now() - startTime) / 1000; // seconds
+                // Simulate progress (max 100% after 2 hours)
+                const progress = Math.min((elapsed / 7200) * 100, 99);
+                
+                const history = getHistory();
+                if (!history[movieId] || progress > history[movieId].progress) {
+                    history[movieId] = {
+                        title: movieTitle,
+                        poster: moviePoster,
+                        progress: progress,
+                        timestamp: Date.now()
+                    };
+                    saveHistory(history);
+                }
+            }
+        }, 10000); // Every 10 seconds
+        
+        // Track when the user is actively watching
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                isWatching = false;
+            } else {
+                isWatching = true;
+                startTime = Date.now();
+            }
+        });
+        
+        // ============================================
+        // INITIALIZE
+        // ============================================
+        
+        // Update watch status on page load
+        updateWatchStatus();
+        
+        // If there's a timestamp in the URL, try to seek
+        window.onload = function() {
+            const hash = window.location.hash;
+            if (hash && hash.startsWith('#t=')) {
+                const timestamp = parseInt(hash.split('=')[1]);
+                // We can't control the embed directly, but we can show a message
+                const watchMessage = document.getElementById('watchMessage');
+                watchMessage.innerHTML += `<br><small>⏰ Resumed from ${new Date(timestamp).toLocaleTimeString()}</small>`;
+            }
+        };
     </script>
 </body>
 </html>

@@ -28,23 +28,30 @@ VIDEO_SOURCES = [
 
 @app.route('/')
 def home():
-    """Homepage - Show popular movies"""
+    # Get popular movies from TMDB
     url = f"{TMDB_BASE_URL}/movie/popular?api_key={TMDB_API_KEY}&language=en-US&page=1"
     response = requests.get(url)
     movies = response.json().get('results', [])[:20]
-    return render_template('index.html', movies=movies)
+    
+    # Watch history (frontend will handle it via localStorage)
+    watch_history = {}
+    
+    return render_template('index.html', movies=movies, watch_history=watch_history)
 
 
 @app.route('/search')
 def search():
-    """Search for movies"""
     query = request.args.get('q', '')
     movies = []
     if query:
         url = f"{TMDB_BASE_URL}/search/movie?api_key={TMDB_API_KEY}&query={query}"
         response = requests.get(url)
         movies = response.json().get('results', [])
-    return render_template('index.html', movies=movies, query=query)
+    
+    # Add watch_history here too
+    watch_history = {}
+    
+    return render_template('index.html', movies=movies, query=query, watch_history=watch_history)
 
 
 @app.route('/movie/<movie_id>')
