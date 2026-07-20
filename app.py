@@ -6,7 +6,7 @@ app = Flask(__name__)
 # ============================================
 # CONFIGURATION
 # ============================================
-TMDB_API_KEY = "861edbc9c659c8714873ca4ae6edee8c"  # <--- PASTE YOUR TMDB API KEY HERE
+TMDB_API_KEY = "861edbc9c659c8714873ca4ae6edee8c"
 TMDB_BASE_URL = "https://api.themoviedb.org/3"
 
 # List of video sources (will try in order)
@@ -55,14 +55,13 @@ VIDEO_SOURCES = [
     "https://v4.vidsrc.cc/embed/movie/{movie_id}",
 ]
 
-
 # ============================================
-# ROUTES
+# ROUTES - MOVIES
 # ============================================
 
 @app.route('/')
 def home():
-    # Get popular movies from TMDB
+    """Homepage - Show popular movies"""
     url = f"{TMDB_BASE_URL}/movie/popular?api_key={TMDB_API_KEY}&language=en-US&page=1"
     response = requests.get(url)
     movies = response.json().get('results', [])[:20]
@@ -75,6 +74,7 @@ def home():
 
 @app.route('/search')
 def search():
+    """Search for movies"""
     query = request.args.get('q', '')
     movies = []
     if query:
@@ -82,7 +82,6 @@ def search():
         response = requests.get(url)
         movies = response.json().get('results', [])
     
-    # Add watch_history here too
     watch_history = {}
     
     return render_template('index.html', movies=movies, query=query, watch_history=watch_history)
@@ -90,6 +89,7 @@ def search():
 
 @app.route('/movie/<movie_id>')
 def movie_detail(movie_id):
+    """Movie details page with video player"""
     # Get movie details from TMDB
     url = f"{TMDB_BASE_URL}/movie/{movie_id}?api_key={TMDB_API_KEY}&language=en-US"
     response = requests.get(url)
@@ -104,6 +104,58 @@ def movie_detail(movie_id):
     return render_template(
         'detail.html', 
         movie=movie, 
+        video_urls=video_urls,
+        primary_video_url=video_urls[0]
+    )
+
+
+# ============================================
+# ROUTES - TV SERIES
+# ============================================
+
+@app.route('/tv')
+def tv_shows():
+    """Page for popular TV series"""
+    url = f"{TMDB_BASE_URL}/tv/popular?api_key={TMDB_API_KEY}&language=en-US&page=1"
+    response = requests.get(url)
+    shows = response.json().get('results', [])[:20]
+    return render_template('tv_shows.html', shows=shows)
+
+
+@app.route('/tv/search')
+def search_tv():
+    """Search for TV series"""
+    query = request.args.get('q', '')
+    shows = []
+    if query:
+        url = f"{TMDB_BASE_URL}/search/tv?api_key={TMDB_API_KEY}&query={query}"
+        response = requests.get(url)
+        shows = response.json().get('results', [])
+    return render_template('tv_shows.html', shows=shows, query=query)
+
+
+@app.route('/tv/<tv_id>')
+def tv_detail(tv_id):
+    """TV series details page with video player"""
+    # Get TV series details from TMDB
+    url = f"{TMDB_BASE_URL}/tv/{tv_id}?api_key={TMDB_API_KEY}&language=en-US"
+    response = requests.get(url)
+    show = response.json()
+    
+    # Generate all video source URLs for TV
+    video_urls = []
+    for source_template in VIDEO_SOURCES:
+        # TV sources use different embed format
+        tv_source = source_template.replace('/movie/', '/tv/')
+        video_urls.append(tv_source.format(movie_id=tv_id))
+    
+    # Fallback if no TV-specific sources found
+    if not video_urls:
+        video_urls = [f"https://www.2embed.cc/embed/tv/{tv_id}"]
+    
+    return render_template(
+        'tv_detail.html', 
+        show=show, 
         video_urls=video_urls,
         primary_video_url=video_urls[0]
     )

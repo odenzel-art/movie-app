@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TV Series</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #111; color: white; padding: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 10px; }
+        .nav-links { display: flex; gap: 20px; }
+        .nav-links a { color: #e50914; text-decoration: none; font-size: 18px; }
+        .nav-links a:hover { text-decoration: underline; }
+        .nav-links a.active { color: white; }
+        .search-box { display: flex; gap: 10px; }
+        .search-box input { padding: 10px; border: none; border-radius: 5px; width: 250px; }
+        .search-box button { padding: 10px 20px; background: #e50914; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .movie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+        .movie-card { background: #1a1a1a; border-radius: 10px; overflow: hidden; transition: transform 0.3s; cursor: pointer; }
+        .movie-card:hover { transform: scale(1.05); }
+        .movie-card img { width: 100%; height: 280px; object-fit: cover; }
+        .movie-card h3 { padding: 10px; font-size: 14px; text-align: center; }
+        .movie-card .badge { 
+            display: inline-block; 
+            background: #e50914; 
+            color: white; 
+            padding: 2px 10px; 
+            border-radius: 10px; 
+            font-size: 11px;
+            margin: 0 10px 10px 10px;
+        }
+        a { color: white; text-decoration: none; }
+        .section-title { 
+            font-size: 24px; 
+            margin: 30px 0 15px 0; 
+            border-left: 4px solid #e50914; 
+            padding-left: 15px; 
+        }
+        @media (max-width: 600px) {
+            .header { flex-direction: column; align-items: stretch; }
+            .search-box input { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <h1>🎬 Movie App</h1>
+            <div class="nav-links">
+                <a href="/">Movies</a>
+                <a href="/tv" class="active">TV Series</a>
+            </div>
+        </div>
+        <form class="search-box" action="/tv/search" method="GET">
+            <input type="text" name="q" placeholder="Search TV series..." required>
+            <button type="submit">Search</button>
+        </form>
+    </div>
+    
+    <h2 class="section-title">📺 Popular TV Series</h2>
+    <div class="movie-grid">
+        {% for show in shows %}
+        <a href="/tv/{{ show.id }}">
+            <div class="movie-card">
+                {% if show.poster_path %}
+                    <img src="https://image.tmdb.org/t/p/w500{{ show.poster_path }}" alt="{{ show.name }}">
+                {% else %}
+                    <img src="https://via.placeholder.com/500x750/1a1a1a/555?text=No+Poster" alt="{{ show.name }}">
+                {% endif %}
+                <h3>{{ show.name }}</h3>
+                <span class="badge">⭐ {{ show.vote_average }}/10</span>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    
+    {% if query %}
+    <p style="margin-top: 20px; color: #888;">Results for: "{{ query }}"</p>
+    {% endif %}
+</body>
+</html>
